@@ -1,0 +1,4 @@
+pandas~=1.2.4
+flask~=1.1.2
+gunicorn==20.0.4
+
