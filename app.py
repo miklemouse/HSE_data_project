@@ -248,6 +248,121 @@ def graph1():
 
     return render_index(html_string = fig.to_html(full_html=False, include_plotlyjs='cdn'))
 
+@app.route(links["2. Fully vaxed perc by region [LINE]"], methods=['GET'])
+def graph2():
+    stats, dates, perc_by_date, regions, perc_by_reg, devtypes, perc_by_dev, cols, total, population_by_region, population_by_dev = my_setup()
+
+    lines = [go.Scatter(name=region,
+                        x=dates,
+                        y=list(perc_by_reg[region].values()))
+             for region in regions if type(region) is str]
+
+    fig = go.Figure(lines)
+
+    fig.update_layout(title='Percentage of fully vaccinated people in different regions',
+                      yaxis_title='Vaxed people, %')
+
+    return render_index(html_string = fig.to_html(full_html=False, include_plotlyjs='cdn'))
+
+@app.route(links["3. Fully vaxed perc by dev type [LINE]"], methods=['GET'])
+def graph3():
+    stats, dates, perc_by_date, regions, perc_by_reg, devtypes, perc_by_dev, cols, total, population_by_region, population_by_dev = my_setup()
+
+    lines = [go.Scatter(name=devtype,
+                        x=dates,
+                        y=list(perc_by_dev[devtype].values()))
+             for devtype in devtypes if type(devtype) is str]
+
+    fig = go.Figure(lines)
+
+    fig.update_layout(title='Percentage of fully vaccinated people by country development type',
+                      yaxis_title='Vaxed people, %')
+
+    return render_index(html_string = fig.to_html(full_html=False, include_plotlyjs='cdn'))
+
+
+@app.route(links["4. Up to date vaxed perc by region [BAR]"], methods=['GET'])
+def graph4():
+    stats, dates, perc_by_date, regions, perc_by_reg, devtypes, perc_by_dev, cols, total, population_by_region, population_by_dev = my_setup()
+
+    sorted_reg = sorted([reg for reg in regions if type(reg) is str])
+
+    bar = go.Bar(x=sorted_reg,
+                 y=[list(perc_by_reg[reg].values())[-1]
+                    for reg in sorted_reg])
+
+    fig = go.Figure(bar)
+
+    fig.update_layout(title='Up to date percentage of fully vaccinated people in different regions',
+                      yaxis_title='Vaxed people, %')
+
+    return render_index(html_string = fig.to_html(full_html=False, include_plotlyjs='cdn'))
+
+@app.route(links["5. Up to date vaxed perc by dev type [BAR]"], methods=['GET'])
+def graph5():
+    stats, dates, perc_by_date, regions, perc_by_reg, devtypes, perc_by_dev, cols, total, population_by_region, population_by_dev = my_setup()
+
+    sorted_dev = sorted([dev for dev in devtypes if type(dev) is str])
+
+    bar = go.Bar(x=sorted_dev,
+                 y=[list(perc_by_dev[dev].values())[-1]
+                    for dev in sorted_dev])
+
+    fig = go.Figure(bar)
+
+    fig.update_layout(title='Up to date percentage of fully vaccinated people by country dev type',
+                      yaxis_title='Vaxed people, %')
+
+
+    return render_index(html_string = fig.to_html(full_html=False, include_plotlyjs='cdn'))
+
+@app.route(links["6. Vax stats in total worldwide [LINE]"], methods=['GET'])
+def graph6():
+    stats, dates, perc_by_date, regions, perc_by_reg, devtypes, perc_by_dev, cols, total, population_by_region, population_by_dev = my_setup()
+
+    lines = [go.Scatter(name=col.replace('_',' '),
+                        x=dates,
+                        y=total[col])
+             for col in cols]
+
+    fig = go.Figure(lines)
+
+    fig.update_layout(title='Global statistics',
+                      yaxis_title='Number of people / vaccinations',)
+
+    return render_index(html_string = fig.to_html(full_html=False, include_plotlyjs='cdn'))
+
+@app.route(links["7. Up to date vaxed people in total by region [PIE]"], methods=['GET'])
+def graph7():
+    stats, dates, perc_by_date, regions, perc_by_reg, devtypes, perc_by_dev, cols, total, population_by_region, population_by_dev = my_setup()
+
+    sorted_reg = sorted([reg for reg in regions if type(reg) is str])
+
+    pie = go.Pie(labels=sorted_reg,
+                 values=[list(perc_by_reg[reg].values())[-1] / 100 * population_by_region[reg]
+                         for reg in sorted_reg])
+
+    fig = go.Figure(pie)
+
+    fig.update_layout(title='Fully vaccinated people in total by region')
+
+    return render_index(html_string = fig.to_html(full_html=False, include_plotlyjs='cdn'))
+
+@app.route(links["8. Up to date vaxed people in total by region [PIE]"], methods=['GET'])
+def graph8():
+    stats, dates, perc_by_date, regions, perc_by_reg, devtypes, perc_by_dev, cols, total, population_by_region, population_by_dev = my_setup()
+
+    sorted_dev = sorted([dev for dev in devtypes if type(dev) is str])
+
+    pie = go.Pie(labels=sorted_dev,
+                 values=[list(perc_by_dev[dev].values())[-1] / 100 * population_by_dev[dev]
+                    for dev in sorted_dev])
+
+    fig = go.Figure(pie)
+
+    fig.update_layout(title="""Fully vaccinated people in total by country dev type.""")
+
+    return render_index(html_string = fig.to_html(full_html=False, include_plotlyjs='cdn'))
 
 
 if __name__ == '__main__':
