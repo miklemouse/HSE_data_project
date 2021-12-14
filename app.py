@@ -13,9 +13,17 @@ from plotly import graph_objects as go
 
 import os
 
+import pickle
+
 #preprocess
 
 def my_setup():
+    if os.path.exists('data/tmp/cached.pickle'):
+        with open('data/tmp/cached.pickle', 'rb') as file:
+            data = pickle.load(file)
+        return data
+
+
     if not os.path.exists('data/country_vaccinations_pr.csv'):
         vax = pd.read_csv('data/country_vaccinations.csv')
 
@@ -182,9 +190,15 @@ def my_setup():
         total.iloc[i][cols] = vax.loc[vax['date'] == date].sum(numeric_only=True)[cols]
         i += 1
 
-    return (stats, dates, perc_by_date, regions, perc_by_reg, devtypes, perc_by_dev, cols, total,
+
+
+    data = (stats, dates, perc_by_date, regions, perc_by_reg, devtypes, perc_by_dev, cols, total,
             population_by_region, population_by_dev)
 
+    with open('data/tmp/cached.pickle', 'wb') as file:
+        pickle.dump(data, file, pickle.HIGHEST_PROTOCOL)
+
+    return data
 
 
 app = Flask(__name__)
@@ -216,8 +230,9 @@ def main_page():
 def download_data():
     return send_file("data/country_vaccinations.csv", as_attachment=True)
 
-@app.route(links["Descriptive stats"], methods=['GET', 'POST'])
+@app.route(links["View Raw Data"], methods=['GET'])
 def view_data():
+    df = pd.read_csv("data/country_vaccinations.csv")
     errors = []
     current_filter_value = ""
     if request.method == "POST":
@@ -225,13 +240,20 @@ def view_data():
         current_filter_value = current_filter
         if current_filter:
             try:
-                df = vax.query(current_filter)
+                df = df.query(current_filter)
             except Exception as e:
                 errors.append('<font color="red">Incorrect filter</font>')
                 print(e)
 
     html_string = df.to_html()
     return render_index(html_string=html_string, filters=True, errors=errors, current_filter_value=current_filter_value)
+
+@app.route(links["Descriptive stats"], methods=['GET'])
+def desc_stats():
+    stats, dates, perc_by_date, regions, perc_by_reg, devtypes, perc_by_dev, cols, total, population_by_region, population_by_dev = my_setup()
+    html_string = stats.to_html()
+    return render_index(html_string=html_string)
+
 
 @app.route(links["1. Fully vaxed perc worldwide [LINE]"], methods=['GET'])
 def graph1():
@@ -242,6 +264,7 @@ def graph1():
                       y=list(perc_by_date.values()))
 
     fig = go.Figure(line)
+
 
     fig.update_layout(title='Percentage of fully vaccinated people worldwide',
                       yaxis_title='Vaxed people, %')
