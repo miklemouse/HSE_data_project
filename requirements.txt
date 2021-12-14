@@ -2,3 +2,4 @@ seaborn~=0.11.1
 pandas~=1.2.4
 flask~=1.1.2
 gunicorn==20.0
+plotly~=5.4.0
