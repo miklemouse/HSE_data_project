@@ -232,7 +232,7 @@ def download_data():
     return send_file("data/country_vaccinations.csv", as_attachment=True)
 
 @app.route(links["Download analysis in PDF"], methods=['GET'])
-def download_data():
+def download_analysis():
     return send_file("data/Vaccination_Analysis.pdf", as_attachment=True)
 
 @app.route(links["View Raw Data"], methods=['GET'])
