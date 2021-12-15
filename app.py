@@ -205,7 +205,8 @@ app = Flask(__name__)
 
 
 
-links = {"Download" : "/download", #+
+links = {"Download" : "/download",
+         "Download analysis in PDF" : "/analysis",
          "View Raw Data" : "/view_data",
          "Descriptive stats" : "/stats",
          "1. Fully vaxed perc worldwide [LINE]" : "/graph1",
@@ -229,6 +230,10 @@ def main_page():
 @app.route(links["Download"], methods=['GET'])
 def download_data():
     return send_file("data/country_vaccinations.csv", as_attachment=True)
+
+@app.route(links["Download analysis in PDF"], methods=['GET'])
+def download_data():
+    return send_file("data/Vaccination_Analysis.pdf", as_attachment=True)
 
 @app.route(links["View Raw Data"], methods=['GET'])
 def view_data():
