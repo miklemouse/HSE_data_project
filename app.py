@@ -18,8 +18,8 @@ import pickle
 #preprocess
 
 def my_setup():
-    if os.path.exists('data/tmp/cached.pickle'):
-        with open('data/tmp/cached.pickle', 'rb') as file:
+    if os.path.exists('data/tmp/cached'):
+        with open('data/tmp/cached', 'rb') as file:
             data = pickle.load(file)
         return data
 
@@ -195,7 +195,7 @@ def my_setup():
     data = (stats, dates, perc_by_date, regions, perc_by_reg, devtypes, perc_by_dev, cols, total,
             population_by_region, population_by_dev)
 
-    with open('data/tmp/cached.pickle', 'wb') as file:
+    with open('data/tmp/cached', 'wb') as file:
         pickle.dump(data, file, pickle.HIGHEST_PROTOCOL)
 
     return data
@@ -216,7 +216,8 @@ links = {"Download" : "/download",
          "5. Up to date vaxed perc by dev type [BAR]" : "/graph5",
          "6. Vax stats in total worldwide [LINE]" : "/graph6",
          "7. Up to date vaxed people in total by region [PIE]" : "/graph7",
-         "8. Up to date vaxed people in total by region [PIE]" : "/graph8"}
+         "8. Up to date vaxed people in total by region [PIE]" : "/graph8",
+         "Technical: Download cache" : "/cache"}
 
 
 def render_index (image=None, html_string=None, filters=None,  errors=None, current_filter_value=""):
@@ -391,6 +392,11 @@ def graph8():
     fig.update_layout(title="""Fully vaccinated people in total by country dev type.""")
 
     return render_index(html_string = fig.to_html(full_html=False, include_plotlyjs='cdn'))
+
+@app.route(links["Technical: Download cache"], methods=['GET'])
+def download_cache():
+    return send_file("data/tmp/cached", as_attachment=True)
+
 
 
 if __name__ == '__main__':
